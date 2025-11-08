@@ -208,49 +208,70 @@ font-family: "Share Tech", sans-serif;
     letter-spacing: 2px;
 }
 
-/* Full-width responsive grid */
-.similar-movies-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 40px;
+/* SIMILAR MOVIES SECTION */
+.similar-movies {
     width: 100%;
+    max-width: 1200px; /* keeps it centered and not too wide */
+    margin: 60px auto; /* centers the whole section */
+    text-align: center; /* centers heading and content */
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
-/* Each movie item fills its column width */
+.similar-movies h2 {
+    text-align: center;
+    font-size: 2rem;
+    color: #fff;
+    margin-bottom: 30px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+/* 3 movies per row */
+.similar-movies-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 25px;
+    justify-items: center; /* centers grid items horizontally */
+}
+
+/* Each movie item fits neatly */
 .similar-movie-item {
     cursor: pointer;
     text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     width: 100%;
+    max-width: 300px; /* keeps images moderate size */
 }
 
 .similar-movie-item img {
     width: 100%;
-    height: auto;
-    border-radius: 12px;
+    height: 260px; /* balanced size */
+    border-radius: 10px;
     object-fit: cover;
 }
 
 .similar-movie-item h3 {
-    margin-top: 12px;
-    font-size: 1.1rem;
+    margin-top: 10px;
+    font-size: 1rem;
     color: #fff;
 }
 
-/* Hover effects */
+/* Hover effect */
 .similar-movie-item:hover {
-    transform: scale(1.03);
-    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
 }
 
-/* Responsive design for smaller screens */
+/* Responsive */
 @media (max-width: 900px) {
     .similar-movies-grid {
-        grid-template-columns: 1fr;
-        gap: 25px;
+        grid-template-columns: repeat(2, 1fr);
     }
+}
 
-    .similar-movies h2 {
-        font-size: 1.7rem;
+@media (max-width: 600px) {
+    .similar-movies-grid {
+        grid-template-columns: 1fr;
     }
 }
