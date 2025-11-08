@@ -6,7 +6,9 @@
     <title>Home</title>
     <meta name="description" content="Popular and recommended titles will appear on this page">
     <meta name="author" content="Ntshembo Shilowa">
-    <link rel="stylesheet" href="/styles/home.css">
+
+    <link rel="stylesheet" href="../styles/home.css">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
@@ -40,7 +42,7 @@
                 <div class="featured-info">
                     <h1 class="featured-title" id="featuredMovieTitle">Loading...</h1>
                     <p class="featured-desc" id="featuredMovieDesc">Loading description...</p>
-                    <button class="featured-button">WATCH</button>
+                    <button class="featured-button" id="featuredButton">WATCH</button>
                 </div>
             </div>
 
@@ -96,6 +98,9 @@
         const IMG_BASE_URL = 'https://image.tmdb.org/t/p/w500';
         const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
 
+        // Global variables
+        let featuredMovie = null;
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function() {
             loadHomePageData();
@@ -118,33 +123,14 @@
                 console.error('Error loading home page data:', error);
             }
         }
-function createMovieElement(movie) {
-    const movieDiv = document.createElement('div');
-    movieDiv.className = 'movie-item';
-    const posterPath = movie.poster_path
-        ? `${IMG_BASE_URL}${movie.poster_path}`
-        : '../img/placeholder-movie.jpg';
-    movieDiv.innerHTML = `
-        <img src="${posterPath}" alt="${movie.title}" class="movie-poster">
-        <div class="movie-info">
-            <h3 class="movie-title">${movie.title}</h3>
-            <p class="movie-year">${movie.release_date ? movie.release_date.substring(0, 4) : 'TBA'}</p>
-            <div class="movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
-        </div>
-    `;
-    movieDiv.addEventListener('click', () => {
-        // Redirect to movie details page with movie ID
-        window.location.href = `../spotlight/index.html?id=${movie.id}`;
-    });
-    return movieDiv;
-}
+
         async function loadFeaturedMovie() {
             try {
                 const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
                 const data = await response.json();
                 
                 if (data.results && data.results.length > 0) {
-                    const featuredMovie = data.results[0]; // Get the first popular movie
+                    featuredMovie = data.results[0]; // Get the first popular movie
                     const backdropPath = featuredMovie.backdrop_path 
                         ? `${BACKDROP_BASE_URL}${featuredMovie.backdrop_path}`
                         : '../img/f-1.jpg';
@@ -154,6 +140,11 @@ function createMovieElement(movie) {
                     document.getElementById('featuredMovieTitle').textContent = featuredMovie.title;
                     document.getElementById('featuredMovieDesc').textContent = 
                         featuredMovie.overview || 'No description available.';
+                    
+                    // Add click event to featured button
+                    document.getElementById('featuredButton').addEventListener('click', () => {
+                        openMovieDetails(featuredMovie.id);
+                    });
                 }
             } catch (error) {
                 console.error('Error loading featured movie:', error);
@@ -212,7 +203,7 @@ function createMovieElement(movie) {
             }
 
             container.innerHTML = movies.map(movie => `
-                <div class="movie-list-item" onclick="handleMovieClick(${movie.id})">
+                <div class="movie-list-item" onclick="openMovieDetails(${movie.id})">
                     <img class="movie-list-item-img" 
                          src="${movie.poster_path ? IMG_BASE_URL + movie.poster_path : '../img/placeholder-movie.jpg'}" 
                          alt="${movie.title}"
@@ -221,10 +212,15 @@ function createMovieElement(movie) {
                         <span class="movie-list-item-title">${movie.title}</span>
                         <p class="movie-list-item-desc">${(movie.overview || 'No description available.').substring(0, 100)}...</p>
                         <div class="movie-list-item-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
-                        <button class="movie-list-item-button">Watch</button>
+                        <button class="movie-list-item-button" onclick="event.stopPropagation(); openMovieDetails(${movie.id})">Watch</button>
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Open movie details in spotlight page
+        function openMovieDetails(movieId) {
+            window.location.href = `../spotlight/index.html?id=${movieId}`;
         }
 
         function setupCarousels() {
@@ -241,12 +237,7 @@ function createMovieElement(movie) {
             });
         }
 
-        function handleMovieClick(movieId) {
-            console.log('Movie clicked:', movieId);
-            // You can add navigation to movie details page here
-        }
-
-        // Navigation functions (same as films page)
+        // Navigation functions
         function goToHome() {
             window.location.href = '/home/index.html'; 
         }

@@ -4,58 +4,224 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Favourites</title>
-    <meta name="description" content="Select your favourite movies and find them all in the ">
+    <meta name="description" content="Select your favourite movies and find them all in one place">
     <meta name="author" content="Ntshembo Shilowa">
-    <link rel="stylesheet" href="/styles/favourites.css">
+    <link rel="stylesheet" href="../styles/favourites.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
-
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
 </head>
 
 <body>
-
-<div class="navbar">
-    <div class="navbar-container">
-        <div class="logo-container">
-            <h1 class="logo"> PIXLBOX</h1>
-        </div>
-
-                <div class="menu-container">
-                    <ul class="menu-list">
-                         <button onclick="goToHome()" class="menu-list-item">HOME</button>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="logo-container">
+                <h1 class="logo">PIXLBOX</h1>
+            </div>
+            <div class="menu-container">
+                <ul class="menu-list">
+                    <button onclick="goToHome()" class="menu-list-item">HOME</button>
                     <button onclick="goToFilms()" class="menu-list-item">FILMS</button>
                     <button onclick="goToGenre()" class="menu-list-item">GENRE</button>
                     <button onclick="goToWatchlist()" class="menu-list-item">WATCHLIST</button>
                     <button onclick="goToFavourites()" class="menu-list-item">FAVOURITES</button>
-                    </ul>
-                </div>
-                    <div>
-                            <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
-                    </div>
-                        
-</div>
-
+                </ul>
+            </div>
+            <div>
+                <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
+            </div>
+        </div>
+    </div>
 
     <main>
         <section>
             <h1 class="row-title">FAVOURITES</h1>
-            <div class="movie-grid">
-                <img src="../img/1.jpeg" alt="John Wick">
-                <img src="../img/1.jpeg" alt="Kung Fu Panda 4">
-                <img src="../img/1.jpeg" alt="Chucky">
-                <img src="../img/1.jpeg" alt="Chucky">
-                <img src="../img/1.jpeg" alt="Chucky">
-                <img src="../img/1.jpeg" alt="Chucky">
+            <div class="movie-grid" id="favouritesGrid">
+                <div class="loading">Loading your favourites...</div>
             </div>
         </section>
-
     </main>
 
-   <script src="../scripts/navigateToGenre.js" defer></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoLRWq0eMadmOlOfCyuSVKCYSNvw3Bpmw",
+            authDomain: "pixlbox-bfc2d.firebaseapp.com",
+            projectId: "pixlbox-bfc2d",
+            storageBucket: "pixlbox-bfc2d.firebasestorage.app",
+            messagingSenderId: "443728262091",
+            appId: "1:443728262091:web:e03df2f6e2a187bccb7c4e",
+            measurementId: "G-XTJCVQ3ZG6"
+        };
 
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
+        // TMDB API Configuration
+        const API_KEY = 'bee2e199532755eba2c0424e6c805c5f';
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMG_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
+        // DOM Elements
+        const favouritesGrid = document.getElementById('favouritesGrid');
+        const searchInput = document.getElementById('searchInput');
+
+        // Current user state
+        let currentUser = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function () {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    loadFavourites();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = '../login/index.html';
+                }
+            });
+        });
+
+        // Load user's favourites
+        async function loadFavourites() {
+            if (!currentUser) return;
+            
+            try {
+                showLoadingState();
+
+                const favouritesDoc = await db.collection('users').doc(currentUser.uid)
+                    .collection('favourites').get();
+                
+                if (favouritesDoc.empty) {
+                    favouritesGrid.innerHTML = `
+                        <div class="no-favourites">
+                            <h2>No favourites yet</h2>
+                            <p>Start adding movies to your favourites from the Films page or movie details page!</p>
+                            <button onclick="goToFilms()" class="browse-button">Browse Movies</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const movieIds = favouritesDoc.docs.map(doc => doc.id);
+                await displayFavourites(movieIds);
+            } catch (error) {
+                console.error('Error loading favourites:', error);
+                showErrorState('Failed to load favourites');
+            }
+        }
+
+        // Display favourites movies
+        async function displayFavourites(movieIds) {
+            const movies = [];
+            
+            // Fetch movie details for each favourite ID
+            for (const movieId of movieIds) {
+                try {
+                    const response = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}`);
+                    if (response.ok) {
+                        const movie = await response.json();
+                        movies.push(movie);
+                    }
+                } catch (error) {
+                    console.error(`Error fetching movie ${movieId}:`, error);
+                }
+            }
+            
+            if (movies.length === 0) {
+                favouritesGrid.innerHTML = '<div class="no-results">No favourite movies found</div>';
+                return;
+            }
+
+            favouritesGrid.innerHTML = movies.map(movie => `
+                <div class="movie-item" onclick="openMovieDetails(${movie.id})">
+                    <img src="${movie.poster_path ? IMG_BASE_URL + movie.poster_path : '../img/placeholder-movie.jpg'}" 
+                         alt="${movie.title}"
+                         onerror="this.src='../img/placeholder-movie.jpg'">
+                    <div class="movie-overlay">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <p class="movie-year">${movie.release_date ? movie.release_date.substring(0, 4) : 'TBA'}</p>
+                        <div class="movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
+                        <button class="remove-favourite" onclick="event.stopPropagation(); removeFromFavourites(${movie.id}, '${movie.title}')">
+                            Remove from Favourites
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Remove movie from favourites
+        async function removeFromFavourites(movieId, movieTitle) {
+            if (!currentUser) return;
+
+            if (!confirm(`Are you sure you want to remove "${movieTitle}" from your favourites?`)) {
+                return;
+            }
+
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('favourites').doc(movieId.toString()).delete();
+                
+                alert(`"${movieTitle}" removed from your favourites!`);
+                loadFavourites(); // Reload the list
+            } catch (error) {
+                console.error('Error removing from favourites:', error);
+                alert('Failed to remove movie from favourites');
+            }
+        }
+
+        // Open movie details in spotlight page
+        function openMovieDetails(movieId) {
+            window.location.href = `../spotlight/index.html?id=${movieId}`;
+        }
+
+        // Search functionality
+        async function searchMovies(event) {
+            if (event.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query === '') return;
+                
+                window.location.href = `../films/index.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Utility functions
+        function showLoadingState() {
+            favouritesGrid.innerHTML = '<div class="loading">Loading your favourites...</div>';
+        }
+
+        function showErrorState(message) {
+            favouritesGrid.innerHTML = `<div class="error">${message}. Please try again later.</div>`;
+        }
+
+        // Navigation functions
+        function goToHome() {
+            window.location.href = '/home/index.html'; 
+        }
+
+        function goToFilms() {
+            window.location.href = '/films/index.html'; 
+        }
+
+        function goToGenre() {
+            window.location.href = '/genres/index.html'; 
+        }
+
+        function goToWatchlist() {
+            window.location.href = '/watchlist/index.html'; 
+        }
+
+        function goToFavourites() {
+            window.location.href = '/favourites/index.html'; 
+        }
+    </script>
 </body>
 </html>
