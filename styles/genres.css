@@ -95,8 +95,6 @@ font-family: "Share Tech", sans-serif;
     border-color: #FFFFFF;
 }
 
-
-
 /* Genres Grid */
 .genre-grid {
     display: grid;
@@ -115,9 +113,209 @@ font-family: "Share Tech", sans-serif;
     padding: 70px 0;
     border-radius: 20px;
     transition: 0.3s;
+    cursor: pointer;
 }
 
 .genre:hover {
     background: #fff;
     transform: scale(1.05);
+}
+
+/* Movies by Genre View */
+.movies-by-genre {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.genre-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 30px;
+    padding: 0 20px;
+}
+
+.back-button {
+    background-color: #2a2a2a;
+    color: #FFFFFF;
+    border: 1px solid #444;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: "Share Tech", sans-serif;
+    transition: all 0.3s ease;
+}
+
+.back-button:hover {
+    background-color: #444;
+    border-color: #FFFFFF;
+}
+
+.genre-title {
+    font-size: 2rem;
+    margin: 0;
+    color: #FFFFFF;
+}
+
+/* Filter Buttons */
+.filter-container {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background-color: #2a2a2a;
+    color: #FFFFFF;
+    border: 1px solid #444;
+    padding: 10px 20px;
+    border-radius: 25px;
+    cursor: pointer;
+    font-family: "Share Tech", sans-serif;
+    transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+    background-color: #444;
+    border-color: #FFFFFF;
+}
+
+.filter-btn.active {
+    background-color: #FFFFFF;
+    color: #1C1C1C;
+    border-color: #FFFFFF;
+}
+
+/* Movie Grid */
+.film-grid {
+    max-width: 1200px;
+    margin: 50px auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 30px;
+    padding: 0 20px;
+}
+
+.movie-item {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    background: #2a2a2a;
+    cursor: pointer;
+}
+
+.movie-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.movie-item img {
+    width: 100%;
+    height: 350px;
+    object-fit: cover;
+    display: block;
+}
+
+.movie-info {
+    padding: 15px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    color: white;
+}
+
+.movie-title {
+    font-size: 1.1em;
+    margin: 0 0 5px 0;
+    font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-year {
+    margin: 0;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.movie-rating {
+    margin-top: 5px;
+    font-size: 0.9em;
+    color: #ffd700;
+}
+
+/* Loading and Error States */
+.loading, .error, .no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 1.2em;
+    color: #888;
+}
+
+.error {
+    color: #ff6b6b;
+}
+
+.no-results {
+    color: #b3b3b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .genre-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        max-width: 600px;
+        margin: 50px auto;
+    }
+    
+    .genre {
+        padding: 50px 0;
+        font-size: 1.1rem;
+    }
+    
+    .genre-header {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+    
+    .film-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .genre-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        max-width: 300px;
+    }
+    
+    .genre {
+        padding: 40px 0;
+        font-size: 1rem;
+    }
+    
+    .film-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .filter-container {
+        gap: 10px;
+    }
+    
+    .filter-btn {
+        padding: 8px 16px;
+        font-size: 0.9em;
+    }
 }

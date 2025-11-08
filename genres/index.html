@@ -4,64 +4,271 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Genres</title>
-    <meta name="description" content="Select a movie genre. Movies are catergorised and filtered ">
+    <meta name="description" content="Select a movie genre. Movies are categorized and filtered">
     <meta name="author" content="Ntshembo Shilowa">
     <link rel="stylesheet" href="../styles/genres.css">
-     
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
- 
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
 </head>
 
 <body>
-
-<div class="navbar">
-    
-    <div class="navbar-container">
-        <div class="logo-container">
-            <h1 class="logo"> PIXLBOX</h1>
-        </div>
-
-                <div class="menu-container">
-                    <ul class="menu-list">
-                
-                        
-
-                         <button onclick="goToHome()" class="menu-list-item">HOME</button>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="logo-container">
+                <h1 class="logo">PIXLBOX</h1>
+            </div>
+            <div class="menu-container">
+                <ul class="menu-list">
+                    <button onclick="goToHome()" class="menu-list-item">HOME</button>
                     <button onclick="goToFilms()" class="menu-list-item">FILMS</button>
                     <button onclick="goToGenre()" class="menu-list-item">GENRE</button>
                     <button onclick="goToWatchlist()" class="menu-list-item">WATCHLIST</button>
                     <button onclick="goToFavourites()" class="menu-list-item">FAVOURITES</button>
-                        
-
-
-                    </ul>
-                </div>
-                    <div>
-                              <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
-                    </div>
-                        
+                </ul>
+            </div>
+            <div>
+                <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
+            </div>
+        </div>
     </div>
 
     <main>
-        <div class="genre-grid">
-            <div class="genre">ROMANCE</div>
-            <div class="genre">HORROR</div>
-            <div class="genre">COMEDY</div>
-            <div class="genre">THRILLER</div>
-            <div class="genre">ACTION</div>
-            <div class="genre">ANIME</div>
-            <div class="genre">SCI-FI</div>
-            <div class="genre">DRAMA</div>
-            <div class="genre">ACTION</div>
+        <!-- Genre Selection View -->
+        <div class="genre-grid" id="genreGrid">
+            <div class="genre" onclick="loadGenreMovies(10749, 'Romance')">ROMANCE</div>
+            <div class="genre" onclick="loadGenreMovies(27, 'Horror')">HORROR</div>
+            <div class="genre" onclick="loadGenreMovies(35, 'Comedy')">COMEDY</div>
+            <div class="genre" onclick="loadGenreMovies(53, 'Thriller')">THRILLER</div>
+            <div class="genre" onclick="loadGenreMovies(28, 'Action')">ACTION</div>
+            <div class="genre" onclick="loadGenreMovies(16, 'Animation')">ANIME</div>
+            <div class="genre" onclick="loadGenreMovies(878, 'Science Fiction')">SCI-FI</div>
+            <div class="genre" onclick="loadGenreMovies(18, 'Drama')">DRAMA</div>
+            <div class="genre" onclick="loadGenreMovies(9648, 'Mystery')">MYSTERY</div>
+        </div>
+
+        <!-- Movies by Genre View -->
+        <div class="movies-by-genre" id="moviesByGenre" style="display: none;">
+            <div class="genre-header">
+                <button class="back-button" onclick="showGenreSelection()">← BACK TO GENRES</button>
+                <h1 class="genre-title" id="genreTitle">Genre Movies</h1>
+            </div>
+            <div class="filter-container">
+                <button onclick="fetchPopularByGenre()" class="filter-btn active">POPULAR</button>
+                <button onclick="fetchTopRatedByGenre()" class="filter-btn">TOP RATED</button>
+                <button onclick="fetchLatestByGenre()" class="filter-btn">LATEST</button>
+            </div>
+            <div class="film-grid" id="genreMoviesGrid">
+                <div class="loading">Loading movies...</div>
+            </div>
         </div>
     </main>
 
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoLRWq0eMadmOlOfCyuSVKCYSNvw3Bpmw",
+            authDomain: "pixlbox-bfc2d.firebaseapp.com",
+            projectId: "pixlbox-bfc2d",
+            storageBucket: "pixlbox-bfc2d.firebasestorage.app",
+            messagingSenderId: "443728262091",
+            appId: "1:443728262091:web:e03df2f6e2a187bccb7c4e",
+            measurementId: "G-XTJCVQ3ZG6"
+        };
 
-<script src="../scripts/navigateToGenre.js" defer></script>
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
 
+        // TMDB API Configuration
+        const API_KEY = 'bee2e199532755eba2c0424e6c805c5f';
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMG_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
+        // Global variables
+        let currentGenreId = null;
+        let currentGenreName = '';
+        let currentFilter = 'popular';
 
+        // Authentication check
+        document.addEventListener('DOMContentLoaded', function () {
+            auth.onAuthStateChanged((user) => {
+                if (!user) {
+                    window.location.href = '../login/index.html';
+                }
+            });
+        });
+
+        // Load movies by genre
+        async function loadGenreMovies(genreId, genreName) {
+            currentGenreId = genreId;
+            currentGenreName = genreName;
+            currentFilter = 'popular';
+
+            // Show movies view, hide genre selection
+            document.getElementById('genreGrid').style.display = 'none';
+            document.getElementById('moviesByGenre').style.display = 'block';
+            document.getElementById('genreTitle').textContent = genreName.toUpperCase();
+
+            // Set active filter and load movies
+            setActiveFilter('POPULAR');
+            await fetchPopularByGenre();
+        }
+
+        // Show genre selection view
+        function showGenreSelection() {
+            document.getElementById('genreGrid').style.display = 'grid';
+            document.getElementById('moviesByGenre').style.display = 'none';
+        }
+
+        // Fetch popular movies by genre
+        async function fetchPopularByGenre() {
+            if (!currentGenreId) return;
+            
+            try {
+                showLoadingState();
+                const response = await fetch(
+                    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${currentGenreId}&sort_by=popularity.desc&page=1`
+                );
+                if (!response.ok) throw new Error('Failed to fetch popular movies');
+                const data = await response.json();
+                displayGenreMovies(data.results);
+                setActiveFilter('POPULAR');
+                currentFilter = 'popular';
+            } catch (error) {
+                console.error('Error fetching popular movies:', error);
+                showErrorState('Failed to load popular movies');
+            }
+        }
+
+        // Fetch top rated movies by genre
+        async function fetchTopRatedByGenre() {
+            if (!currentGenreId) return;
+            
+            try {
+                showLoadingState();
+                const response = await fetch(
+                    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${currentGenreId}&sort_by=vote_average.desc&vote_count.gte=100&page=1`
+                );
+                if (!response.ok) throw new Error('Failed to fetch top rated movies');
+                const data = await response.json();
+                displayGenreMovies(data.results);
+                setActiveFilter('TOP RATED');
+                currentFilter = 'top_rated';
+            } catch (error) {
+                console.error('Error fetching top rated movies:', error);
+                showErrorState('Failed to load top rated movies');
+            }
+        }
+
+        // Fetch latest movies by genre
+        async function fetchLatestByGenre() {
+            if (!currentGenreId) return;
+            
+            try {
+                showLoadingState();
+                const response = await fetch(
+                    `${BASE_URL}/discover/movie?api_key=${API_KEY}&with_genres=${currentGenreId}&sort_by=release_date.desc&page=1`
+                );
+                if (!response.ok) throw new Error('Failed to fetch latest movies');
+                const data = await response.json();
+                displayGenreMovies(data.results);
+                setActiveFilter('LATEST');
+                currentFilter = 'latest';
+            } catch (error) {
+                console.error('Error fetching latest movies:', error);
+                showErrorState('Failed to load latest movies');
+            }
+        }
+
+        // Display movies in the grid
+        function displayGenreMovies(movies) {
+            const grid = document.getElementById('genreMoviesGrid');
+            if (!movies || movies.length === 0) {
+                grid.innerHTML = '<p class="no-results">No movies found in this genre</p>';
+                return;
+            }
+
+            grid.innerHTML = movies.map(movie => `
+                <div class="movie-item" onclick="openMovieDetails(${movie.id})">
+                    <img src="${movie.poster_path ? IMG_BASE_URL + movie.poster_path : '../img/placeholder-movie.jpg'}" 
+                         alt="${movie.title}"
+                         onerror="this.src='../img/placeholder-movie.jpg'">
+                    <div class="movie-info">
+                        <h3 class="movie-title">${movie.title}</h3>
+                        <p class="movie-year">${movie.release_date ? movie.release_date.substring(0, 4) : 'TBA'}</p>
+                        <div class="movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Open movie details in spotlight page
+        function openMovieDetails(movieId) {
+            window.location.href = `../spotlight/index.html?id=${movieId}`;
+        }
+
+        // Set active filter button
+        function setActiveFilter(activeFilter) {
+            document.querySelectorAll('.filter-btn').forEach((btn) => {
+                btn.classList.remove('active');
+            });
+            if (activeFilter) {
+                document.querySelectorAll('.filter-btn').forEach((btn) => {
+                    if (btn.textContent === activeFilter) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+
+        // Utility functions
+        function showLoadingState() {
+            const grid = document.getElementById('genreMoviesGrid');
+            grid.innerHTML = '<div class="loading">Loading movies...</div>';
+        }
+
+        function showErrorState(message) {
+            const grid = document.getElementById('genreMoviesGrid');
+            grid.innerHTML = `<div class="error">${message}. Please try again later.</div>`;
+        }
+
+        // Search functionality
+        async function searchMovies(event) {
+            if (event.key === 'Enter') {
+                const query = document.getElementById('searchInput').value.trim();
+                if (query === '') return;
+                
+                window.location.href = `../films/index.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Navigation functions
+        function goToHome() {
+            window.location.href = '/home/index.html'; 
+        }
+
+        function goToFilms() {
+            window.location.href = '/films/index.html'; 
+        }
+
+        function goToGenre() {
+            window.location.href = '/genres/index.html'; 
+        }
+
+        function goToWatchlist() {
+            window.location.href = '/watchlist/index.html'; 
+        }
+
+        function goToFavourites() {
+            window.location.href = '/favourites/index.html'; 
+        }
+    </script>
 </body>
 </html>
