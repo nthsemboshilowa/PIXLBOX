@@ -1,4 +1,4 @@
-function goToHome() {
+/*function goToHome() {
             window.location.href = '/PIXLBOX/home/index.html'; 
 }
 
@@ -16,4 +16,4 @@ function goToWatchlist() {
 
 function goToFavourites() {
     window.location.href = '/favourites/index.html'; 
-}
+}*/
