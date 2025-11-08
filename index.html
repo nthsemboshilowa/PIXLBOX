@@ -6,7 +6,7 @@
     <title>Login</title>
     <meta name="description" content="Form validation with real-time feedback (error/success messaging, dynamic input states)">
     <meta name="author" content="Ntshembo Shilowa">
-    <link rel="stylesheet" href="./styles/login.css">
+    <link rel="stylesheet" href="/styles/login.css">
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -53,21 +53,21 @@
             </form>
 
             <p style="text-align: center; margin-top: 1rem;">
-                Already have an account? <a href="./scripts/signin.html" style="color: #FFFFFF;">Sign In</a>
+                Already have an account? <a href="signin.html" style="color: #FFFFFF;">Sign In</a>
             </p>
         </div>
     </div>
 
     <script>
         const firebaseConfig = {
-            apiKey: "AIzaSyBoLRWq0eMadmOlOfCyuSVKCYSNvw3Bpmw",
-            authDomain: "pixlbox-bfc2d.firebaseapp.com",
-            projectId: "pixlbox-bfc2d",
-            storageBucket: "pixlbox-bfc2d.firebasestorage.app",
-            messagingSenderId: "443728262091",
-            appId: "1:443728262091:web:e03df2f6e2a187bccb7c4e",
-            measurementId: "G-XTJCVQ3ZG6"
-        };
+    apiKey: "AIzaSyBflPRON0Zbv47ljJVbD7F6YAYgwoR7dzw",
+    authDomain: "pixlbox-d923d.firebaseapp.com",
+    projectId: "pixlbox-d923d",
+    storageBucket: "pixlbox-d923d.firebasestorage.app",
+    messagingSenderId: "1047530211773",
+    appId: "1:1047530211773:web:4a14584e3ff25638e62ad4",
+    measurementId: "G-6FXFVK411D"
+  };
 
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -97,8 +97,8 @@
             })
             .then(() => {
                 console.log('User document created successfully');
-                // FIXED: Use absolute path to ensure it works from any location
-                window.location.href = './profileSelect/index.html';
+                
+                window.location.href = '/home/index.html';
             })
             .catch((error) => {
                 console.error('Google sign-in error:', error);
@@ -132,8 +132,8 @@
             })
             .then(() => {
                 console.log('User document created successfully');
-                // FIXED: Use absolute path to ensure it works from any location
-                window.location.href = './profileSelect/index.html';
+              
+                window.location.href = '/home/index.html';
             })
             .catch((error) => {
                 console.error('Sign up error:', error);

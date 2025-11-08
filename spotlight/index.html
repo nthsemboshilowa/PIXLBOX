@@ -8,21 +8,24 @@
     <meta name="author" content="Ntshembo Shilowa">
     <link rel="stylesheet" href="/styles/spotlight.css">
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
 </head>
 
 <body>
-
-    <div class="background"></div>
+    <div class="background" id="background"></div>
 
     <div class="navbar">
         <div class="navbar-container">
             <div class="logo-container">
-                <h1 class="logo"> PIXLBOX</h1>
+                <h1 class="logo">PIXLBOX</h1>
             </div>
-
             <div class="menu-container">
                 <ul class="menu-list">
                     <button onclick="goToHome()" class="menu-list-item">HOME</button>
@@ -33,32 +36,262 @@
                 </ul>
             </div>
             <div>
-                  <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
+                <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
             </div>
         </div>
     </div>
 
-    <main class="content">
-       
-        <img src="../img/Chucky_logo.svg.png" alt="CHUCKY" class="title-svg">
-
-        <p class="description">
-            When a single mother gives her son Andy a popular "Good Guy" doll for his birthday, 
-            they soon discover the toy is possessed by the soul of a serial killer.
-        </p>
-
-        <div class="buttons">
-            <button class="play-trailer">▶ PLAY TRAILER</button>
-            <button class="play-title">PLAY TITLE</button>
-            <button class="fav">★</button>
-        </div>
-
-        <div class="details">
-            <div><span>GENRE</span> HORROR</div>
-            <div><span>DURATION</span> 1H 31M</div>
-        </div>
+    <main class="content" id="movieContent">
+        <div class="loading">Loading movie details...</div>
     </main>
 
-    <script src="../scripts/navigateToGenre.js" defer></script>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoLRWq0eMadmOlOfCyuSVKCYSNvw3Bpmw",
+            authDomain: "pixlbox-bfc2d.firebaseapp.com",
+            projectId: "pixlbox-bfc2d",
+            storageBucket: "pixlbox-bfc2d.firebasestorage.app",
+            messagingSenderId: "443728262091",
+            appId: "1:443728262091:web:e03df2f6e2a187bccb7c4e",
+            measurementId: "G-XTJCVQ3ZG6"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // TMDB API Configuration
+        const API_KEY = 'bee2e199532755eba2c0424e6c805c5f';
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMG_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+        const BACKDROP_BASE_URL = 'https://image.tmdb.org/t/p/w1280';
+
+        // DOM Elements
+        const background = document.getElementById('background');
+        const movieContent = document.getElementById('movieContent');
+        const searchInput = document.getElementById('searchInput');
+
+        // Current movie state
+        let currentMovie = null;
+        let currentUser = null;
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get movie ID from URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const movieId = urlParams.get('id');
+            
+            if (!movieId) {
+                movieContent.innerHTML = '<div class="error">No movie selected. Please go back and select a movie.</div>';
+                return;
+            }
+
+            // Check authentication
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    currentUser = user;
+                    loadMovieDetails(movieId);
+                } else {
+                    // If not authenticated, still load movie details but disable user-specific features
+                    loadMovieDetails(movieId);
+                }
+            });
+        });
+
+        // Load movie details
+        async function loadMovieDetails(movieId) {
+            try {
+                showLoadingState();
+                
+                // Fetch movie details
+                const movieResponse = await fetch(`${BASE_URL}/movie/${movieId}?api_key=${API_KEY}&append_to_response=credits,videos`);
+                if (!movieResponse.ok) throw new Error('Failed to fetch movie details');
+                const movie = await movieResponse.json();
+
+                // Fetch similar movies
+                const similarResponse = await fetch(`${BASE_URL}/movie/${movieId}/similar?api_key=${API_KEY}`);
+                const similarData = await similarResponse.json();
+                
+                currentMovie = movie;
+                displayMovieDetails(movie, similarData.results || []);
+            } catch (error) {
+                console.error('Error loading movie details:', error);
+                showErrorState('Failed to load movie details');
+            }
+        }
+
+        // Display movie details
+        function displayMovieDetails(movie, similarMovies) {
+            // Set background
+            if (movie.backdrop_path) {
+                background.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('${BACKDROP_BASE_URL}${movie.backdrop_path}')`;
+            }
+
+            // Format duration
+            const duration = movie.runtime ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : 'Unknown';
+
+            // Get genres
+            const genres = movie.genres ? movie.genres.map(genre => genre.name).join(', ') : 'Unknown';
+
+            // Get director
+            const director = movie.credits ? movie.credits.crew.find(person => person.job === 'Director') : null;
+            const directorName = director ? director.name : 'Unknown';
+
+            // Get trailer
+            const trailer = movie.videos ? movie.videos.results.find(video => video.type === 'Trailer' && video.site === 'YouTube') : null;
+
+            movieContent.innerHTML = `
+                <div class="movie-header">
+                    <h1 class="movie-title">${movie.title}</h1>
+                    <div class="movie-meta">
+                        <span class="movie-year">${movie.release_date ? movie.release_date.substring(0, 4) : 'TBA'}</span>
+                        <span class="movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</span>
+                        <span class="movie-runtime">${duration}</span>
+                    </div>
+                </div>
+
+                <p class="description">${movie.overview || 'No description available.'}</p>
+
+                <div class="buttons">
+                    ${trailer ? `<button class="play-trailer" onclick="playTrailer('${trailer.key}')">▶ PLAY TRAILER</button>` : ''}
+                    <button class="play-title" onclick="addToWatchlist()">ADD TO WATCHLIST</button>
+                    <button class="fav" onclick="toggleFavourite()">★</button>
+                </div>
+
+                <div class="details">
+                    <div><span>GENRE</span> ${genres}</div>
+                    <div><span>DIRECTOR</span> ${directorName}</div>
+                    <div><span>RELEASE DATE</span> ${movie.release_date || 'Unknown'}</div>
+                    <div><span>BUDGET</span> ${movie.budget ? '$' + movie.budget.toLocaleString() : 'Unknown'}</div>
+                </div>
+
+                ${similarMovies.length > 0 ? `
+                    <div class="similar-movies">
+                        <h2>Similar Movies</h2>
+                        <div class="similar-movies-grid">
+                            ${similarMovies.slice(0, 6).map(similarMovie => `
+                                <div class="similar-movie-item" onclick="openMovieDetails(${similarMovie.id})">
+                                    <img src="${similarMovie.poster_path ? IMG_BASE_URL + similarMovie.poster_path : '../img/placeholder-movie.jpg'}" 
+                                         alt="${similarMovie.title}"
+                                         onerror="this.src='../img/placeholder-movie.jpg'">
+                                    <h3>${similarMovie.title}</h3>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        // Play trailer
+        function playTrailer(youtubeKey) {
+            window.open(`https://www.youtube.com/watch?v=${youtubeKey}`, '_blank');
+        }
+
+        // Add to watchlist
+        async function addToWatchlist() {
+            if (!currentUser) {
+                alert('Please sign in to add movies to your watchlist');
+                return;
+            }
+
+            if (!currentMovie) return;
+
+            try {
+                await db.collection('users').doc(currentUser.uid)
+                    .collection('watchlist').doc(currentMovie.id.toString()).set({
+                        movieId: currentMovie.id,
+                        title: currentMovie.title,
+                        posterPath: currentMovie.poster_path,
+                        addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                
+                alert(`"${currentMovie.title}" added to your watchlist!`);
+            } catch (error) {
+                console.error('Error adding to watchlist:', error);
+                alert('Failed to add movie to watchlist');
+            }
+        }
+
+        // Toggle favourite
+        async function toggleFavourite() {
+            if (!currentUser) {
+                alert('Please sign in to add movies to your favourites');
+                return;
+            }
+
+            if (!currentMovie) return;
+
+            try {
+                const favouriteRef = db.collection('users').doc(currentUser.uid)
+                    .collection('favourites').doc(currentMovie.id.toString());
+                
+                const doc = await favouriteRef.get();
+                
+                if (doc.exists) {
+                    await favouriteRef.delete();
+                    alert(`"${currentMovie.title}" removed from your favourites!`);
+                } else {
+                    await favouriteRef.set({
+                        movieId: currentMovie.id,
+                        title: currentMovie.title,
+                        posterPath: currentMovie.poster_path,
+                        addedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert(`"${currentMovie.title}" added to your favourites!`);
+                }
+            } catch (error) {
+                console.error('Error toggling favourite:', error);
+                alert('Failed to update favourites');
+            }
+        }
+
+        // Open movie details
+        function openMovieDetails(movieId) {
+            window.location.href = `../spotlight/index.html?id=${movieId}`;
+        }
+
+        // Search functionality
+        async function searchMovies(event) {
+            if (event.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query === '') return;
+                
+                window.location.href = `../films/index.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Utility functions
+        function showLoadingState() {
+            movieContent.innerHTML = '<div class="loading">Loading movie details...</div>';
+        }
+
+        function showErrorState(message) {
+            movieContent.innerHTML = `<div class="error">${message}. Please try again later.</div>`;
+        }
+
+        // Navigation functions
+        function goToHome() {
+            window.location.href = '/home/index.html'; 
+        }
+
+        function goToFilms() {
+            window.location.href = '/films/index.html'; 
+        }
+
+        function goToGenre() {
+            window.location.href = '/genres/index.html'; 
+        }
+
+        function goToWatchlist() {
+            window.location.href = '/watchlist/index.html'; 
+        }
+
+        function goToFavourites() {
+            window.location.href = '/favourites/index.html'; 
+        }
+    </script>
 </body>
 </html>

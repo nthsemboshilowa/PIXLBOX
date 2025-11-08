@@ -118,7 +118,26 @@
                 console.error('Error loading home page data:', error);
             }
         }
-
+function createMovieElement(movie) {
+    const movieDiv = document.createElement('div');
+    movieDiv.className = 'movie-item';
+    const posterPath = movie.poster_path
+        ? `${IMG_BASE_URL}${movie.poster_path}`
+        : '../img/placeholder-movie.jpg';
+    movieDiv.innerHTML = `
+        <img src="${posterPath}" alt="${movie.title}" class="movie-poster">
+        <div class="movie-info">
+            <h3 class="movie-title">${movie.title}</h3>
+            <p class="movie-year">${movie.release_date ? movie.release_date.substring(0, 4) : 'TBA'}</p>
+            <div class="movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
+        </div>
+    `;
+    movieDiv.addEventListener('click', () => {
+        // Redirect to movie details page with movie ID
+        window.location.href = `../spotlight/index.html?id=${movie.id}`;
+    });
+    return movieDiv;
+}
         async function loadFeaturedMovie() {
             try {
                 const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
