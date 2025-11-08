@@ -8,22 +8,148 @@
     <meta name="author" content="Ntshembo Shilowa">
     <link rel="stylesheet" href="/styles/login.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <div class="main-container">
+        <div class="sign-up-container">
+            <div onclick="signInWithGoogle()" class="sign-with-google-container">
+                <img src="assets/images/GoogleIcon.svg" alt="">
+                <p>Sign up with Google</p>
+            </div>
 
-    <form action="/action_page.php">
-  <label for="fname">First name:</label><br>
-  <input type="text" id="fname" name="fname" value="John"><br>
-  <label for="lname">Last name:</label><br>
-  <input type="text" id="lname" name="lname" value="Doe"><br><br>
-  <input type="submit" value="Submit">
-    </form>
+            <p>or</p>
 
+            <form onsubmit="signUpWithEmail(event)">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm-password">Confirm Password</label>
+                    <input type="password" id="confirm-password" name="confirm-password" placeholder="Confirm your password" required>
+                </div>
+                
+                <button type="submit" class="submit-btn">Sign Up</button>
+            </form>
 
+            <p style="text-align: center; margin-top: 1rem;">
+                Already have an account? <a href="scripts/signin.html" style="color: #FFFFFF;">Sign In</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBoLRWq0eMadmOlOfCyuSVKCYSNvw3Bpmw",
+            authDomain: "pixlbox-bfc2d.firebaseapp.com",
+            projectId: "pixlbox-bfc2d",
+            storageBucket: "pixlbox-bfc2d.firebasestorage.app",
+            messagingSenderId: "443728262091",
+            appId: "1:443728262091:web:e03df2f6e2a187bccb7c4e",
+            measurementId: "G-XTJCVQ3ZG6"
+        };
+
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        function createUserDocument(user) {
+            const username = user.email.split('@')[0];
+            const profilePicture = user.photoURL || 'assets/images/default-avatar.png';
+            
+            return db.collection('users').doc(user.uid).set({
+                email: user.email,
+                username: username,
+                profilePicture: profilePicture,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            
+            auth.signInWithPopup(provider)
+            .then((result) => {
+                const user = result.user;
+                console.log('Successfully signed in with Google:', user);
+                return createUserDocument(user);
+            })
+            .then(() => {
+                console.log('User document created successfully');
+                window.location.href = 'films/index.html';
+            })
+            .catch((error) => {
+                console.error('Google sign-in error:', error);
+                alert('Failed to sign in with Google: ' + error.message);
+            });
+        }
+
+        function signUpWithEmail(event) {
+            event.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            const username = document.getElementById('username').value;
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match!');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('Password should be at least 6 characters');
+                return;
+            }
+            
+            auth.createUserWithEmailAndPassword(email, password)
+            .then((userCredential) => {
+                const user = userCredential.user;
+                console.log('Successfully signed up:', user);
+                return createUserDocumentForEmail(user, username);
+            })
+            .then(() => {
+                console.log('User document created successfully');
+                window.location.href = 'films/index.html';
+            })
+            .catch((error) => {
+                console.error('Sign up error:', error);
+                alert('Sign up failed: ' + error.message);
+            });
+        }
+
+        function createUserDocumentForEmail(user, username) {
+            const profilePicture = 'assets/images/default-avatar.png';
+            
+            return db.collection('users').doc(user.uid).set({
+                email: user.email,
+                username: username,
+                profilePicture: profilePicture,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+            });
+        }
+    </script>
 </body>
 </html>

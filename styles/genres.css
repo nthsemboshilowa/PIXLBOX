@@ -44,6 +44,20 @@ font-family: "Share Tech", sans-serif;
 .menu-list {
   display: flex;
   list-style: none;
+
+  
+   button{
+    background-color: #1C1C1C;
+    border: none;
+    color: white;
+    font-family: "Share Tech", sans-serif;
+    font-size: 1.1rem;
+    
+  }
+
+  button:hover{
+    cursor: pointer;
+  }
 }
 
 .menu-list-item {

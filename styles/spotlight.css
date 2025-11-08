@@ -61,6 +61,20 @@ font-family: "Share Tech", sans-serif;
       font-family: "Share Tech", sans-serif;
 }
 
+   button{
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-family: "Share Tech", sans-serif;
+    font-size: 1.1rem;
+
+    
+  }
+
+  button:hover{
+    cursor: pointer;
+  }
+
 /* Background image */
 .background {
     background: url("../img/chucky2.jpg") no-repeat center center/cover;

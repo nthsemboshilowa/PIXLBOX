@@ -1,6 +1,123 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 body{
-    
     font-family: "Share Tech", sans-serif;
     background-color: #1C1C1C;
     color: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Fallback */
+}
+
+.main-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.sign-with-google-container img {
+    height: 20px;  
+    width: 20px;  
+}
+
+.sign-up-container{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;  
+    margin: 2rem;
+}
+
+.sign-with-google-container{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;   
+    border: solid 1px grey;
+    border-radius: 1rem;
+    padding: 0rem 2rem;
+    width: 300px;
+}
+
+.sign-with-google-container:hover{
+    background-color: grey;
+    cursor: pointer;
+}
+
+.form{
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 400px;
+}
+
+.form-group{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    flex: 0 0 150px; /* Fixed width for labels */
+    text-align: right;
+    font-size: 14px;
+}
+
+.form-group input {
+    flex: 1;
+    padding: 10px;
+    background-color: #1C1C1C;
+    color: white;
+    border: 1px solid grey;
+    border-radius: 0.5rem;
+    font-family: "Share Tech", sans-serif;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #FFFFFF;
+}
+
+.submit-btn{
+    background-color: #1C1C1C;
+    color: white;
+    border: solid 1px grey;
+    padding: 0.5rem 2rem;
+    border-radius: 2rem;
+    width: 100%;
+    margin-top: 1rem;
+    font-family: "Share Tech", sans-serif;
+    font-size: 16px;
+}
+
+.submit-btn:hover{
+    background-color: grey;
+    cursor: pointer;
+}
+
+.submit-btn:hover{
+    background-color: grey;
+    cursor: pointer;
+}
+.form{
+    display: flex;
+
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group{
+    display: flex;
+    gap: 2rem;
+    margin-block: 2rem;
 }
