@@ -1,5 +1,5 @@
 function goToHome() {
-    window.location.href = '/home/index.html'; 
+            window.location.href = '/PIXLBOX/home/index.html'; 
 }
 
 function goToFilms() {
