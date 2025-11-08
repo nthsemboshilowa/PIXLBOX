@@ -7,10 +7,11 @@
 
 body {
     font-family: "Share Tech", sans-serif;
-    background-color: hsl(220, 15%, 8%);
-    color: hsl(0, 0%, 95%);
+    background-color: #1C1C1C;
+    color: #FFFFFF;
     min-height: 100vh;
 }
+
 
 /* Page Layout */
 .page-wrapper {
