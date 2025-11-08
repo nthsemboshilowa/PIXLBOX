@@ -6,45 +6,44 @@
     <title>Spotlight</title>
     <meta name="description" content="Show detailed information about movie. Recommend other movies similar to this">
     <meta name="author" content="Ntshembo Shilowa">
-    <link rel="stylesheet" href="../styles/spotlight.css">
+    <link rel="stylesheet" href="/styles/spotlight.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
-
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
     <div class="background"></div>
 
-<div class="navbar">
-    <div class="navbar-container">
-        <div class="logo-container">
-            <h1 class="logo"> PIXLBOX</h1>
-        </div>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="logo-container">
+                <h1 class="logo"> PIXLBOX</h1>
+            </div>
 
-                <div class="menu-container">
-                    <ul class="menu-list">
-                         <button onclick="goToHome()" class="menu-list-item">HOME</button>
-                         <button onclick="goToFilms()" class="menu-list-item">FILMS</button>
-                         <button onclick="goToGenre()" class="menu-list-item">GENRES</button>
-                         <button onclick="goToWatchlist()" class="menu-list-item">WATCHLIST</button>
-                         <button onclick="goToFavourites()" class="menu-list-item">FAVOURITES</button>
-                    </ul>
-                </div>
-                    <div>
-                            <input type="text" placeholder="  SEARCH...">
-                    </div>
-                        
-</div>
+            <div class="menu-container">
+                <ul class="menu-list">
+                    <button onclick="goToHome()" class="menu-list-item">HOME</button>
+                    <button onclick="goToFilms()" class="menu-list-item">FILMS</button>
+                    <button onclick="goToGenre()" class="menu-list-item">GENRE</button>
+                    <button onclick="goToWatchlist()" class="menu-list-item">WATCHLIST</button>
+                    <button onclick="goToFavourites()" class="menu-list-item">FAVOURITES</button>
+                </ul>
+            </div>
+            <div>
+                  <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
+            </div>
+        </div>
+    </div>
 
     <main class="content">
-        <!-- Replace this SVG with your actual title file -->
+       
         <img src="../img/Chucky_logo.svg.png" alt="CHUCKY" class="title-svg">
 
         <p class="description">
-            When a single mother gives her son Andy a popular “Good Guy” doll for his birthday, 
+            When a single mother gives her son Andy a popular "Good Guy" doll for his birthday, 
             they soon discover the toy is possessed by the soul of a serial killer.
         </p>
 
@@ -59,5 +58,7 @@
             <div><span>DURATION</span> 1H 31M</div>
         </div>
     </main>
+
+    <script src="../scripts/navigateToGenre.js" defer></script>
 </body>
 </html>

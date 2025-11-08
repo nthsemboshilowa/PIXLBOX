@@ -44,6 +44,38 @@ font-family: "Share Tech", sans-serif;
 .menu-list {
   display: flex;
   list-style: none;
+  display: flex;
+  list-style: none;
+/* Search input styling */
+#searchInput {
+    background-color: #2a2a2a;
+    color: #FFFFFF;
+    border: 1px solid #444;
+    border-radius: 25px;
+    padding: 10px 15px;
+    font-family: "Share Tech", sans-serif;
+}
+
+#searchInput::placeholder {
+    color: #888;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #FFFFFF;
+}
+  
+   button{
+    background-color: #1C1C1C;
+    border: none;
+    color: white;
+
+    
+  }
+
+  button:hover{
+    cursor: pointer;
+  }
 }
 
 .menu-list-item {
@@ -61,23 +93,9 @@ font-family: "Share Tech", sans-serif;
       font-family: "Share Tech", sans-serif;
 }
 
-   button{
-    background-color: transparent;
-    border: none;
-    color: white;
-    font-family: "Share Tech", sans-serif;
-    font-size: 1.1rem;
-
-    
-  }
-
-  button:hover{
-    cursor: pointer;
-  }
-
 /* Background image */
 .background {
-    background: url("../img/chucky2.jpg") no-repeat center center/cover;
+    background: url("../img/chuky2.jpg") no-repeat center center/cover;
     background-size: cover;
     filter: brightness(0.5);
     position: fixed;

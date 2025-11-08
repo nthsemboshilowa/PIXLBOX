@@ -1,12 +1,4 @@
 /* Manage Profiles Specific Styles */
-body{
-    
-    font-family: "Share Tech", sans-serif;
-    background-color: #1C1C1C;
-    color: #FFFFFF;
-}
-
-
 
 .header-content {
     display: flex;

@@ -30,7 +30,7 @@ function signInWithGoogle() {
         const user = result.user;
         console.log('Successfully signed in with Google:', user);
         // Redirect to your main app page
-        window.location.href = '../profileSelect/index.html';
+        window.location.href = '/films/index.html';
     })
     .catch((error) => {
         console.error('Google sign-in error:', error);
@@ -61,7 +61,7 @@ function signUpWithEmail(event) {
     .then((userCredential) => {
         const user = userCredential.user;
         console.log('Successfully signed up:', user);
-        window.location.href = '../profileSelect/index.html';
+        window.location.href = '/films/index.html';
     })
     .catch((error) => {
         console.error('Sign up error:', error);

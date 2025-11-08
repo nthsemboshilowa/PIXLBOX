@@ -7,61 +7,192 @@
     <meta name="description" content="A selection of films that the user can browse through">
     <meta name="author" content="Ntshembo Shilowa">
     <link rel="stylesheet" href="../styles/films.css">
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
-
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech&display=swap" rel="stylesheet">
 </head>
-
 <body>
-
-<div class="navbar">
-    <div class="navbar-container">
-        <div class="logo-container">
-            <h1 class="logo"> PIXLBOX</h1>
+    <div class="navbar">
+        <div class="navbar-container">
+            <div class="logo-container">
+                <h1 class="logo">PIXLBOX</h1>
+            </div>
+            <div class="menu-container">
+                <ul class="menu-list">
+                    <button onclick="goToHome()" class="menu-list-item">HOME</button>
+                    <button onclick="goToFilms()" class="menu-list-item">FILMS</button>
+                    <button onclick="goToGenre()" class="menu-list-item">GENRE</button>
+                    <button onclick="goToWatchlist()" class="menu-list-item">WATCHLIST</button>
+                    <button onclick="goToFavourites()" class="menu-list-item">FAVOURITES</button>
+                </ul>
+            </div>
+            <div>
+                <input type="text" id="searchInput" placeholder="  SEARCH..." onkeyup="searchMovies(event)">
+            </div>
         </div>
-
-                <div class="menu-container">
-                    <ul class="menu-list">
-                        <button onclick="goToHome()" class="menu-list-item">HOME</button>
-                         <button onclick="goToFilms()" class="menu-list-item">FILMS</button>
-                         <button onclick="goToGenre()" class="menu-list-item">GENRES</button>
-                         <button onclick="goToWatchlist()" class="menu-list-item">WATCHLIST</button>
-                         <button onclick="goToFavourites()" class="menu-list-item">FAVOURITES</button>
-                    </ul>
-                </div>
-                    <div>
-                            <input type="text" placeholder="  SEARCH...">
-                    </div>
-                        
-</div>
-
-    <!-- MOVIE GRID -->
+    </div>
+    <div class="filter-container">
+        <button onclick="fetchTrendingMovies()" class="filter-btn active">TRENDING</button>
+        <button onclick="fetchPopularMovies()" class="filter-btn">POPULAR</button>
+        <button onclick="fetchNowPlayingMovies()" class="filter-btn">NOW PLAYING</button>
+        <button onclick="fetchTopRatedMovies()" class="filter-btn">TOP RATED</button>
+    </div>
     <main>
-        <div class="film-grid">
-
-            <img src="../img/1.jpeg" alt="Film 1">
-            <img src="../img/1.jpeg" alt="Film 2">
-            <img src="../img/1.jpeg" alt="Film 3">
-
-            <img src="../img/1.jpeg" alt="Film 4">
-            <img src="../img/1.jpeg" alt="Film 5">
-            <img src="../img/1.jpeg" alt="Film 6">
-
-            <img src="../img/1.jpeg" alt="Film 7">
-            <img src="../img/1.jpeg" alt="Film 8">
-            <img src="../img/1.jpeg" alt="Film 9">
-
+        <div class="film-grid" id="filmGrid">
         </div>
-
         <div class="scroll-icon">⬇</div>
     </main>
-
- <script src="../scripts/navigateToGenre.js" defer></script>
-
-
-
-
+    <script>
+        const API_KEY = 'bee2e199532755eba2c0424e6c805c5f';
+        const BASE_URL = 'https://api.themoviedb.org/3';
+        const IMG_BASE_URL = 'https://image.tmdb.org/t/p/w500';
+        const filmGrid = document.getElementById('filmGrid');
+        const searchInput = document.getElementById('searchInput');
+        document.addEventListener('DOMContentLoaded', function () {
+            fetchTrendingMovies();
+        });
+        async function fetchTrendingMovies() {
+            try {
+                showLoadingState();
+                const response = await fetch(`${BASE_URL}/trending/movie/week?api_key=${API_KEY}`);
+                if (!response.ok) throw new Error('Failed to fetch trending movies');
+                const data = await response.json();
+                displayMovies(data.results);
+                setActiveFilter('TRENDING');
+            } catch (error) {
+                console.error('Error fetching trending movies:', error);
+                showErrorState('Failed to load trending movies');
+            }
+        }
+        async function fetchPopularMovies() {
+            try {
+                showLoadingState();
+                const response = await fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}`);
+                if (!response.ok) throw new Error('Failed to fetch popular movies');
+                const data = await response.json();
+                displayMovies(data.results);
+                setActiveFilter('POPULAR');
+            } catch (error) {
+                console.error('Error fetching popular movies:', error);
+                showErrorState('Failed to load popular movies');
+            }
+        }
+        async function fetchNowPlayingMovies() {
+            try {
+                showLoadingState();
+                const response = await fetch(`${BASE_URL}/movie/now_playing?api_key=${API_KEY}`);
+                if (!response.ok) throw new Error('Failed to fetch now playing movies');
+                const data = await response.json();
+                displayMovies(data.results);
+                setActiveFilter('NOW PLAYING');
+            } catch (error) {
+                console.error('Error fetching now playing movies:', error);
+                showErrorState('Failed to load now playing movies');
+            }
+        }
+        async function fetchTopRatedMovies() {
+            try {
+                showLoadingState();
+                const response = await fetch(`${BASE_URL}/movie/top_rated?api_key=${API_KEY}`);
+                if (!response.ok) throw new Error('Failed to fetch top rated movies');
+                const data = await response.json();
+                displayMovies(data.results);
+                setActiveFilter('TOP RATED');
+            } catch (error) {
+                console.error('Error fetching top rated movies:', error);
+                showErrorState('Failed to load top rated movies');
+            }
+        }
+        async function searchMovies(event) {
+            if (event.key === 'Enter') {
+                const query = searchInput.value.trim();
+                if (query === '') {
+                    fetchTrendingMovies();
+                    return;
+                }
+                try {
+                    showLoadingState();
+                    const response = await fetch(
+                        `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}`
+                    );
+                    if (!response.ok) throw new Error('Failed to search movies');
+                    const data = await response.json();
+                    displayMovies(data.results);
+                    setActiveFilter(null);
+                } catch (error) {
+                    console.error('Error searching movies:', error);
+                    showErrorState('Failed to search movies');
+                }
+            }
+        }
+        function displayMovies(movies) {
+            if (!filmGrid) return;
+            filmGrid.innerHTML = '';
+            if (!movies || movies.length === 0) {
+                filmGrid.innerHTML = '<p class="no-results">No movies found</p>';
+                return;
+            }
+            movies.forEach((movie) => {
+                const movieElement = createMovieElement(movie);
+                filmGrid.appendChild(movieElement);
+            });
+        }
+        function createMovieElement(movie) {
+            const movieDiv = document.createElement('div');
+            movieDiv.className = 'movie-item';
+            const posterPath = movie.poster_path
+                ? `${IMG_BASE_URL}${movie.poster_path}`
+                : '../img/placeholder-movie.jpg';
+            movieDiv.innerHTML = `
+                <img src="${posterPath}" alt="${movie.title}" class="movie-poster">
+                <div class="movie-info">
+                    <h3 class="movie-title">${movie.title}</h3>
+                    <p class="movie-year">${movie.release_date ? movie.release_date.substring(0, 4) : 'TBA'}</p>
+                    <div class="movie-rating">⭐ ${movie.vote_average ? movie.vote_average.toFixed(1) : 'N/A'}</div>
+                </div>
+            `;
+            movieDiv.addEventListener('click', () => {
+                console.log('Selected movie:', movie.title);
+            });
+            return movieDiv;
+        }
+        function setActiveFilter(activeFilter) {
+            document.querySelectorAll('.filter-btn').forEach((btn) => {
+                btn.classList.remove('active');
+            });
+            if (activeFilter) {
+                document.querySelectorAll('.filter-btn').forEach((btn) => {
+                    if (btn.textContent === activeFilter) {
+                        btn.classList.add('active');
+                    }
+                });
+            }
+        }
+        function showLoadingState() {
+            if (filmGrid) {
+                filmGrid.innerHTML = '<div class="loading">Loading movies...</div>';
+            }
+        }
+        function showErrorState(message) {
+            if (filmGrid) {
+                filmGrid.innerHTML = `<div class="error">${message}. Please try again later.</div>`;
+            }
+        }
+        function goToHome() {
+            window.location.href = '/home/index.html'; 
+        }
+        function goToFilms() {
+            window.location.href = '/films/index.html'; 
+        }
+        function goToGenre() {
+            window.location.href = '/genres/index.html'; 
+        }
+        function goToWatchlist() {
+            window.location.href = '/watchlist/index.html'; 
+        }
+        function goToFavourites() {
+            window.location.href = '/favourites/index.html'; 
+        }
+    </script>
 </body>
 </html>

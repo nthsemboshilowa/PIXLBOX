@@ -98,8 +98,8 @@
                 })
                 .then(() => {
                     console.log('User document processed successfully');
-                    // FIXED: Changed to the same path as email sign-in
-                    window.location.href = '../films/index.html';
+                    
+                    window.location.href = '../profileSelect/index.html';
                 });
             })
             .catch((error) => {
@@ -123,7 +123,7 @@
             })
             .then(() => {
                 console.log('Last login updated successfully');
-                window.location.href = '../films/index.html';
+                window.location.href = '../profileSelect/index.html';
             })
             .catch((error) => {
                 console.error('Sign in error:', error);

@@ -1,5 +1,4 @@
 body{
-    
     font-family: "Share Tech", sans-serif;
     background-color: #1C1C1C;
     color: #FFFFFF;
@@ -22,7 +21,24 @@ body{
   color: white;
 font-family: "Share Tech", sans-serif;
 }
+ /* Search input styling */
+#searchInput {
+    background-color: #2a2a2a;
+    color: #FFFFFF;
+    border: 1px solid #444;
+    border-radius: 25px;
+    padding: 10px 15px;
+    font-family: "Share Tech", sans-serif;
+}
 
+#searchInput::placeholder {
+    color: #888;
+}
+
+#searchInput:focus {
+    outline: none;
+    border-color: #FFFFFF;
+}
 .logo-container{
       flex: 1;
 }
@@ -50,11 +66,15 @@ font-family: "Share Tech", sans-serif;
     border: none;
     color: white;
     font-family: "Share Tech", sans-serif;
-    font-size: 1.1rem;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 10px 15px;
+    transition: color 0.3s ease;
     
   }
 
   button:hover{
+    color: #e50914;
     cursor: pointer;
   }
 }
