@@ -63,7 +63,7 @@ font-family: "Share Tech", sans-serif;
 
 /* Background image */
 .background {
-    background: url("../img/chuky2.jpg") no-repeat center center/cover;
+    background: url("../img/chucky2.jpg") no-repeat center center/cover;
     background-size: cover;
     filter: brightness(0.5);
     position: fixed;
