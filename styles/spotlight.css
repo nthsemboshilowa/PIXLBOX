@@ -190,3 +190,57 @@ font-family: "Share Tech", sans-serif;
     font-size: 0.8rem;
     margin-bottom: 5px;
 }
+
+/*Recommended Movies */
+.similar-movies {
+    margin-top: 40px;
+    padding: 0 20px;
+}
+
+.similar-movies h2 {
+    font-size: 1.8rem;
+    margin-bottom: 15px;
+    color: #fff;
+    text-align: center;
+}
+
+/* 2-column grid layout on larger screens */
+.similar-movies-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    justify-items: center;
+}
+
+/* Each movie item styling */
+.similar-movie-item {
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 250px;
+}
+
+.similar-movie-item img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+.similar-movie-item h3 {
+    margin-top: 10px;
+    font-size: 1rem;
+    color: #fff;
+}
+
+/* Hover effects */
+.similar-movie-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive: 1 column on smaller screens */
+@media (max-width: 768px) {
+    .similar-movies-grid {
+        grid-template-columns: 1fr;
+    }
+}
