@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PIXLBOX - Manage Profiles</title>
+    <meta name="description" content="Edit and customize your PIXLBOX profiles">
+    <link rel="stylesheet" href="/profileSelect/style.css">
+    <link rel="stylesheet" href="/profileSelect/manage-profiles.css">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="header-content">
+                <h1 class="logo">PIXLBOX</h1>
+                <button class="back-button" id="backButton">← Back</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <h2 class="title">Manage Profiles</h2>
+
+            <div class="profiles-grid" id="profilesGrid">
+                <!-- Profile edit cards will be inserted here by JavaScript -->
+            </div>
+
+            <button class="save-button" id="saveButton">
+                Done
+            </button>
+        </main>
+    </div>
+
+    <script src="/profileSelect/manage-profiles.js"></script>
+</body>
+</html>

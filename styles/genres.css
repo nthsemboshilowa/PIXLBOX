@@ -1,0 +1,89 @@
+body{
+    
+    font-family: "Share Tech", sans-serif;
+    background-color: #1C1C1C;
+    color: #FFFFFF;
+}
+
+/*Navigation Bar*/
+.navbar {
+  width: 100%;
+  height: 50px;
+  position: sticky;
+  top: 0;
+
+  margin-top: 55px;
+}
+
+.navbar-container {
+  display: flex;
+  align-items: center;
+  padding: 0 50px;
+  height: 100%;
+  color: #FFFFFF;
+font-family: "Share Tech", sans-serif;
+}
+
+.logo-container{
+      flex: 1;
+}
+
+.logo{
+
+  font-family: "Share Tech", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+.menu-container {
+  flex: 6;
+
+}
+
+.menu-list {
+  display: flex;
+  list-style: none;
+}
+
+.menu-list-item {
+  margin-right: 30px;
+}
+
+.navbar input[type=text] {
+  float: right;
+  padding: 3px;
+  border: 2px;
+  margin-top: 0px;
+  margin-right: 90px;
+  font-size: 17px;
+  border-radius: 45px;
+      font-family: "Share Tech", sans-serif;
+}
+
+
+
+/* Genres Grid */
+.genre-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 50px;
+    max-width: 900px;
+    margin: 80px auto;
+}
+
+.genre {
+    background: #ddd;
+    color: #111;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    padding: 70px 0;
+    border-radius: 20px;
+    transition: 0.3s;
+}
+
+.genre:hover {
+    background: #fff;
+    transform: scale(1.05);
+}
